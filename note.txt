@@ -1,0 +1,83 @@
+cnpm i vuex --save
+
+新建store文件夹，新建store.js
+import Vue from "vue"
+import Vuex from "vuex"
+Vue.use(Vuex)
+
+export const store = new Vuex.Store({})
+
+进入main.js文件
+添加：import { store } from "./store/store";
+new Vue({
+  store: store,
+  el: '#app',
+  render: h => h(App)
+})
+
+获取数据state
+ computed: {
+	productFun() {
+		return this.$store.state.productsStore
+	}
+},
+state:{
+	productsStore: [
+		{ name: "AA", price: 10 },
+		{ name: "BB", price: 20 },
+		{ name: "CC", price: 30 },
+		{ name: "DD", price: 40 },
+	]
+},
+修改数据getters
+ computed: {
+	saleProductFun(){
+		return this.$store.getters.saleProductStore
+	}
+},
+getters:{
+	saleProductStore:(state)=>{
+		var val = state.productsStore.map(item=>{
+			return{
+				name: item.name + "**",
+				price: item.price / 2
+			}
+		})
+		return val;
+	}
+}
+
+触发事件Mutations
+methods:{
+	reducePriceFun(){
+		this.$store.commit("reducePriceStore")
+	}
+}
+mutations:{
+	reducePriceStore: (state, payload)=>{
+		state.productsStore.forEach(item =>{
+			item.price -= payload;
+		})
+	}
+}
+Actions提交的是mutation,不直接变更状态，可以异步操作（用dispatch分发）
+actions:{
+	reducePriceActions:(context,payload) =>{
+		setTimeout(() => {
+			context.commit("reducePriceStore", payload)
+		}, 2000);
+	}
+}
+methods:{
+	reducePriceFun(amount){
+		this.$store.dispatch("reducePriceActions",amount)
+	}
+}
+..mapGetters([
+	"saleProductStore"
+])
+methods:{
+	...mapActions([
+		'reducePriceActions'	
+	])
+}
